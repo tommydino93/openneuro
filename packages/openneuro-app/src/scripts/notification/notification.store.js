@@ -10,6 +10,7 @@ let UploadStore = Reflux.createStore({
 
   init: function() {
     this.setInitialState()
+    this.showUpgradeWarning()
   },
 
   getInitialState: function() {
@@ -27,14 +28,24 @@ let UploadStore = Reflux.createStore({
     this.trigger(this.data, callback)
   },
 
+  showUpgradeWarning() {
+    this.update({
+      showAlert: true,
+      alertType: 'Warning',
+      alertMessage:
+        'We are upgrading to a new storage backend. The website will have limited functionality until Tuesday, July 17th.',
+      timeout: null,
+    })
+  },
+
   /**
-     * Set Initial State
-     *
-     * Sets the state to the data object defined
-     * inside the function. Also takes a diffs object
-     * which will set the state to the initial state
-     * with any differences passed.
-     */
+   * Set Initial State
+   *
+   * Sets the state to the data object defined
+   * inside the function. Also takes a diffs object
+   * which will set the state to the initial state
+   * with any differences passed.
+   */
   setInitialState: function(diffs, callback) {
     let data = {
       showAlert: false,
@@ -51,8 +62,8 @@ let UploadStore = Reflux.createStore({
   // actions ---------------------------------------------------------------------------
 
   /**
-     * Create Alert
-     */
+   * Create Alert
+   */
   createAlert(alert) {
     this.update({
       showAlert: true,
@@ -66,9 +77,9 @@ let UploadStore = Reflux.createStore({
   },
 
   /**
-     * Close Alert
-     *
-     */
+   * Close Alert
+   *
+   */
   closeAlert() {
     this.setInitialState()
   },

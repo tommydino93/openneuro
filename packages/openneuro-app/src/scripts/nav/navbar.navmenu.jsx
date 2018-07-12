@@ -74,9 +74,6 @@ const NavMenu = ({ profile, scitran, isLoggedIn, loading }) => {
         {scitran && scitran.root ? adminLink : null}
       </li>
       <li className="link-dashboard">{isLoggedIn ? <UploadBtn /> : null}</li>
-      <li>
-        <Navbar.Collapse>{loginButton}</Navbar.Collapse>
-      </li>
     </ul>
   )
 }

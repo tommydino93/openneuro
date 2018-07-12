@@ -70,17 +70,6 @@ class FrontPage extends Reflux.Component {
                   Open<span className="logo-end">Neuro</span>
                 </div>
                 <h1>{pageDescription}</h1>
-                <div className="sign-in-block fade-in">
-                  {this._error(
-                    this.state.users.signinError,
-                    this.state.users.loading,
-                  )}
-                  {this._signinForm(this.state.users.loading)}
-                  <Spinner
-                    text="Signing in..."
-                    active={this.state.users.loading}
-                  />
-                </div>
                 <div className="browse-publicly">
                   <Link to="/public/datasets">
                     <span>Browse Public Datasets</span>

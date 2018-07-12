@@ -1,10 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { NavLink } from 'react-router-dom'
-import Usermenu from './navbar.usermenu.jsx'
 import UploadBtn from './navbar.upload-button.jsx'
 import actions from '../user/user.actions.js'
-import { Navbar } from 'react-bootstrap'
 
 const SignIn = ({ loading }) => {
   if (loading) {
@@ -34,6 +32,8 @@ SignIn.propTypes = {
 }
 
 const NavMenu = ({ profile, scitran, isLoggedIn, loading }) => {
+  typeof profile
+  typeof loading
   const adminLink = (
     <NavLink className="nav-link" to="/admin">
       <span className="link-name">admin</span>
@@ -43,11 +43,6 @@ const NavMenu = ({ profile, scitran, isLoggedIn, loading }) => {
     <NavLink className="nav-link" to="/dashboard">
       <span className="link-name">my dashboard</span>
     </NavLink>
-  )
-  const loginButton = isLoggedIn ? (
-    <Usermenu profile={profile} />
-  ) : (
-    <SignIn loading={loading} />
   )
 
   return (

@@ -8,6 +8,8 @@ import App from './app.jsx'
 import runtime from 'serviceworker-webpack-plugin/lib/runtime'
 import packageJson from '../../package.json'
 
+localStorage.clear()
+
 const ravenConfig = {
   release: packageJson.version,
   environment: config.sentry.environment,

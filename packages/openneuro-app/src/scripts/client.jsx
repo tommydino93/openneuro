@@ -8,7 +8,7 @@ import App from './app.jsx'
 import runtime from 'serviceworker-webpack-plugin/lib/runtime'
 import packageJson from '../../package.json'
 
-localStorage.clear()
+global.localStorage.clear()
 
 const ravenConfig = {
   release: packageJson.version,

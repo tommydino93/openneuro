@@ -33,7 +33,7 @@ let UploadStore = Reflux.createStore({
       showAlert: true,
       alertType: 'Warning',
       alertMessage:
-        'We are upgrading to a new storage backend. The website will have limited functionality until Tuesday, July 17th.',
+        'We are upgrading to a new storage backend. The website will have limited functionality until Thursday, July 19th.',
       timeout: null,
     })
   },

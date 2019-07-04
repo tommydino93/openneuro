@@ -25,13 +25,13 @@ const UploaderView = ({ uploader }) => {
     )
   } else {
     return (
-      <span>
+      <>
         <UploadButton onClick={() => uploader.setLocation('/upload')} />
         <UploaderSetupRoutes
           setLocation={uploader.setLocation}
           location={uploader.location}
         />
-      </span>
+      </>
     )
   }
 }

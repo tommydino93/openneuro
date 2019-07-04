@@ -2,11 +2,37 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
+import styled from '@emotion/styled'
 import { withRouter, Link } from 'react-router-dom'
 import Avatar from '../user/avatar.jsx'
 import { DropdownButton } from 'react-bootstrap'
 import withProfile from '../authentication/withProfile.js'
 import signOut from '../authentication/signOut.js'
+
+const MenuList = styled.div`
+  margin-top: 10px;
+  border-radius: 5px;
+
+  @media (min-width: 768px) {
+    margin-top: 0;
+  }
+
+  .dropdown-menu {
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+
+  li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  li + li {
+    border-top: 1px solid rgb(235, 235, 235);
+  }
+`
 
 const signOutAndRedirect = history => {
   signOut()
@@ -21,18 +47,15 @@ const Usermenu = ({ profile, history }) => {
   let gear = <i className="fa fa-gear" />
 
   return (
-    <ul className="clearfix user-wrap">
+    <MenuList className="user-menu-group">
       <Avatar profile={profile} />
       <DropdownButton id="user-menu" title={gear}>
         <li role="presentation" className="dropdown-header">
-          Hello <br />
           {username}
         </li>
-        <li role="separator" className="divider" />
         <li>
-          <Link to="/keygen"> Obtain an API Key </Link>
+          <Link to="/keygen">Obtain an API Key</Link>
         </li>
-        <li role="separator" className="divider" />
         <li>
           <a
             onClick={() => signOutAndRedirect(history)}
@@ -41,7 +64,7 @@ const Usermenu = ({ profile, history }) => {
           </a>
         </li>
       </DropdownButton>
-    </ul>
+    </MenuList>
   )
 }
 

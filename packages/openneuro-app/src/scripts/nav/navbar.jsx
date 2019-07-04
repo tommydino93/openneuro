@@ -9,15 +9,8 @@ import { Modal } from '../utils/modal.jsx'
 import LoginModal from '../common/partials/login.jsx'
 import FreshdeskWidget from '../datalad/fragments/freshdesk-widget.jsx'
 import { frontPage } from 'openneuro-content'
-import styled from '@emotion/styled'
 
 // component setup ---------------------------------------------------------------
-const NavbarSpacer = styled.div`
-  width: 100%;
-  height: 85px;
-  min-height: 85px;
-`
-
 const OpenNeuroBrand = () => (
   <Link to="/" className="navbar-brand">
     {frontPage.navBar.brand.src ? (
@@ -74,7 +67,6 @@ class BSNavbar extends React.Component {
             />
           </Navbar.Collapse>
         </Navbar>
-        <NavbarSpacer />
         {this._supportModal()}
         <LoginModal
           show={this.state.loginModal}

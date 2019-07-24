@@ -59,23 +59,26 @@ export const DATASET_SNAPSHOTS = gql`
   }
 `
 
-export const DATASET_COMMENTS = gql`
-  fragment DatasetComments on Dataset {
+const commentsFragmentBuilder = additionalFields => gql`
+fragment DatasetComments on Dataset {
+  id
+  comments {
     id
-    comments {
-      id
-      text
-      createDate
-      user {
-        email
-      }
-      replies {
-        id
-        text
-        createDate
-        user {
-          email
-        }
+    text
+    createDate
+    user {
+      email
+    }
+    ${additionalFields}
+  }
+}
+`
+
+function replies(depth, nestedReplies = null) {
+  if (depth > 0) {
+    return replies(
+      depth - 1,
+      `
         replies {
           id
           text
@@ -83,27 +86,20 @@ export const DATASET_COMMENTS = gql`
           user {
             email
           }
-          replies {
-            id
-            text
-            createDate
-            user {
-              email
-            }
-            replies {
-              id
-              text
-              createDate
-              user {
-                email
-              }
-            }
-          }
+          ${nestedReplies === null ? '' : nestedReplies}
         }
-      }
-    }
-  }
-`
+      `,
+    )
+  } else return nestedReplies
+}
+
+// depth of 0 gets just the top level comments
+// depth of 1 gets the top level comments and their replies
+export const nestedDatasetComments = depth => {
+  return commentsFragmentBuilder(replies(depth))
+}
+
+export const DATASET_COMMENTS = nestedDatasetComments(2)
 
 export const ISSUE_FIELDS = `
   severity

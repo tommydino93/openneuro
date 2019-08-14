@@ -2,6 +2,7 @@
 
 // dependencies --------------------------------------------------
 import Redis from 'ioredis'
+import Redlock from 'redlock'
 
 let redis = null
 let redlock = null
@@ -16,12 +17,16 @@ const logConnections = config => Array.isArray(config)
   : logConnect(config)
 
 const connect = async config => {
+  console.log(config)
   return new Promise(resolve => {
     if (!redis) {
 
       logConnections(config)
 
-      redis = new Redis.Cluster(config)
+      redis = new Redis.Cluster(config, {
+        
+      })
+      redlock = new Redlock([redis])
       redis.on('connect', () => {
         resolve(redis)
       })

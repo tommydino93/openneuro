@@ -20,7 +20,31 @@ services:
 
   # Redis
   redis:
-    image: redis:alpine
+    networks:
+      default:
+        aliases:
+          - redis-0
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - ALLOW_EMPTY_PASSWORD=yes
+    image: bitnami/redis:5.0.5
+    volumes:
+      - ${PERSISTENT_DIR}/redis:/data
+    restart: always  
+
+  redis-replica:
+    networks:
+      default:
+        aliases:
+          - redis-replica-0
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-0
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - ALLOW_EMPTY_PASSWORD=yes
+    image: bitnami/redis:5.0.5
+    depends_on:
+      - redis
     volumes:
       - ${PERSISTENT_DIR}/redis:/data
     restart: always

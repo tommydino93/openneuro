@@ -4,7 +4,7 @@
 import * as Sentry from '@sentry/node'
 import request from 'superagent'
 import mongo from '../libs/mongo'
-import { redis } from '../libs/redis.js'
+import { redis, redlock } from '../libs/redis.js'
 import config from '../config.js'
 import pubsub from '../graphql/pubsub.js'
 import { updateDatasetName } from '../graphql/resolvers/dataset.js'
@@ -29,6 +29,10 @@ const uri = config.datalad.uri
  */
 const snapshotIndexKey = datasetId => {
   return `openneuro:snapshot-index:${datasetId}`
+}
+
+const lockSnapshot = (datasetId, tag) => {
+  return redlock.lock(`openneuro:create-snapshot-lock:${datasetId}:${tag}`, 1800000) 
 }
 
 const createSnapshotMetadata = (datasetId, tag, hexsha, created) => {
@@ -133,8 +137,8 @@ export const createSnapshot = async (
   const indexKey = snapshotIndexKey(datasetId)
   const sKey = snapshotKey(datasetId, tag)
 
-  // Reserve snapshot id to prevent a race condition on 1.0.0 snapshot
-  await createSnapshotMetadata(datasetId, tag, null, null)
+  // lock snapshot id to prevent upload/update conflicts
+  const snapshotLock = await lockSnapshot(datasetId, tag)
   
   try {
     await createIfNotExistsDoi(datasetId, tag, descriptionFieldUpdates)
@@ -158,14 +162,16 @@ export const createSnapshot = async (
       updateDatasetName(datasetId),
     ])
 
+    snapshotLock.unlock()
     announceNewSnapshot(snapshot, datasetId, user)
     return snapshot
-
+    
   } catch (err) {
     // delete the keys if any step fails
     // this avoids inconsistent cache state after failures
     redis.del(sKey)
     redis.del(indexKey)
+    snapshotLock.unlock()
     Sentry.captureException(err)
     return err
   }

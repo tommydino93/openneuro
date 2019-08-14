@@ -35,28 +35,19 @@ const config = {
     url: process.env.MONGO_URL,
     dbName: 'crn',
   },
-  redis: (
-    parseInt(process.env.REDIS_MASTER_REPLICAS) === 1 &&
-    parseInt(process.env.REDIS_SLAVE_REPLICAS) === 0
-  ) ? (
-    // dev environment: single redis instance
-      {
-        host: process.env.REDIS_MASTER_HOST_PREFIX,
-        port: process.env.REDIS_PORT,
-      }
-    ) : (
+  redis:(
     // multiple master/slave instances
-      [
-        ...Array.from({ length: parseInt(process.env.REDIS_MASTER_REPLICAS) }, (_, i) => ({
-          host: `${process.env.REDIS_MASTER_HOST_PREFIX}-${i}`,
-          port: process.env.REDIS_PORT,
-        })),
-        ...Array.from({ length: parseInt(process.env.REDIS_SLAVE_REPLICAS) }, (_, i) => ({
-          host: `${process.env.REDIS_SLAVE_HOST_PREFIX}-${i}`,
-          port: process.env.REDIS_PORT,
-        }))
-      ]
-    ),
+    [
+      ...Array.from({ length: parseInt(process.env.REDIS_MASTER_REPLICAS) }, (_, i) => ({
+        host: `${process.env.REDIS_MASTER_HOST_PREFIX}-${i}`,
+        port: process.env.REDIS_PORT,
+      })),
+      ...Array.from({ length: parseInt(process.env.REDIS_SLAVE_REPLICAS) }, (_, i) => ({
+        host: `${process.env.REDIS_SLAVE_HOST_PREFIX}-${i}`,
+        port: process.env.REDIS_PORT,
+      }))
+    ]
+  ),
   notifications: {
     email: {
       service: process.env.CRN_SERVER_MAIL_SERVICE,

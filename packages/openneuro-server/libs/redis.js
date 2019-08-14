@@ -4,16 +4,24 @@
 import Redis from 'ioredis'
 
 let redis = null
+let redlock = null
+
+const logConnect = instance => console.log(
+  'Connecting to Redis "redis://%s:%d/0"',
+  instance.host,
+  instance.port,
+)
+const logConnections = config => Array.isArray(config)
+  ? config.forEach(logConnect)
+  : logConnect(config)
 
 const connect = async config => {
   return new Promise(resolve => {
     if (!redis) {
-      console.log(
-        'Connecting to Redis "redis://%s:%d/0"',
-        config.host,
-        config.port,
-      )
-      redis = new Redis(config)
+
+      logConnections(config)
+
+      redis = new Redis.Cluster(config)
       redis.on('connect', () => {
         resolve(redis)
       })
@@ -24,4 +32,4 @@ const connect = async config => {
 }
 
 export default { connect }
-export { redis, connect }
+export { redis, redlock, connect }

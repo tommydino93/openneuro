@@ -8,6 +8,7 @@ import DatasetQueryContext from './dataset-query-context.js'
 import DatasetPage from './dataset-page.jsx'
 import * as DatasetQueryFragments from './dataset-query-fragments.js'
 import { DATASET_COMMENTS } from './comments-fragments.js'
+import { getProfile, hasEditPermissions } from '../../authentication/profile.js'
 import ErrorBoundary, {
   ErrorBoundaryAssertionFailureException,
 } from '../../errors/errorBoundary.jsx'
@@ -17,7 +18,7 @@ import ErrorBoundary, {
  * @param {number} commentDepth How many levels to recurse for comments
  */
 export const getDatasetPage = gql`
-  query dataset($datasetId: ID!) {
+  query dataset($datasetId: ID!, $editTrue: Boolean!) {
     dataset(id: $datasetId) {
       id
       created
@@ -55,13 +56,26 @@ export const getDatasetPage = gql`
  * @param {Object} props
  * @param {Object} props.datasetId Accession number / id for dataset to query
  */
-export const DatasetQueryHook = ({ datasetId }) => {
+
+const user = getProfile()
+const editTrue = (user && user.admin) || hasEditPermissions ? false : true
+console.log(
+  'editTrue:',
+  editTrue,
+  'hasEditPermissions:',
+  hasEditPermissions,
+  'user:',
+  user,
+  'user.admin:',
+  user.admin,
+)
+export const DatasetQueryHook = ({ datasetId, editTrue }) => {
   const {
     data: { dataset },
     loading,
     error,
   } = useQuery(getDatasetPage, {
-    variables: { datasetId },
+    variables: { datasetId, editTrue },
   })
   if (loading) {
     return <Spinner text="Loading Dataset" active />
@@ -91,7 +105,7 @@ DatasetQueryHook.propTypes = {
  */
 const DatasetQuery = ({ match }) => (
   <ErrorBoundaryAssertionFailureException subject={'error in dataset query'}>
-    <DatasetQueryHook datasetId={match.params.datasetId} />
+    <DatasetQueryHook datasetId={match.params.datasetId} editTrue={editTrue} />
   </ErrorBoundaryAssertionFailureException>
 )
 

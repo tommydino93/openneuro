@@ -57,6 +57,8 @@ export const getDatasetPage = gql`
  * @param {Object} props.datasetId Accession number / id for dataset to query
  */
 
+// SOLUTION = TODO : fire a query to fetch dataset user info, pass into second (extant) query's directive expression
+
 //IDEAL CONDITION TO CHECK WRITE PERMISSIONS
 
 // const { dataset } = this.props

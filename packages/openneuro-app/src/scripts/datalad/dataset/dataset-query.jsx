@@ -57,18 +57,19 @@ export const getDatasetPage = gql`
  * @param {Object} props.datasetId Accession number / id for dataset to query
  */
 
+//IDEAL CONDITION TO CHECK WRITE PERMISSIONS
+
+// const { dataset } = this.props
+// const editTrue = (dataset) => {
+//   const user = getProfile()
+//   return (user && user.admin) ||
+//     hasEditPermissions(dataset.permissions, user && user.sub)
+// }
+
+// CONDITION THAT DOESNT WORK BECAUSE hasEditPermissions NEEDS DATASET, WHICH IS FETCHED BY USEQUERY BELOW
 const user = getProfile()
 const editTrue = (user && user.admin) || hasEditPermissions ? false : true
-console.log(
-  'editTrue:',
-  editTrue,
-  'hasEditPermissions:',
-  hasEditPermissions,
-  'user:',
-  user,
-  'user.admin:',
-  user.admin,
-)
+
 export const DatasetQueryHook = ({ datasetId, editTrue }) => {
   const {
     data: { dataset },

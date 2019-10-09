@@ -11,14 +11,22 @@ import { DATASET_COMMENTS } from './comments-fragments.js'
 import ErrorBoundary, {
   ErrorBoundaryAssertionFailureException,
 } from '../../errors/errorBoundary.jsx'
-import { getProfile, hasEditPermissions } from '../../authentication/profile.js'
 
+const getPermissionLevel = gql`
+  query dataset($datasetId: ID!) {
+    dataset(id: $datasetId) {
+      permissions {
+        level
+      }
+    }
+  }
+`
 /**
  * Generate the dataset page query
  * @param {number} commentDepth How many levels to recurse for comments
  */
-export const getDatasetPage = gql`
-  query dataset($datasetId: ID!) {
+const getDatasetPage = gql`
+  query dataset($datasetId: ID!, $hasEdit: Boolean!) {
     dataset(id: $datasetId) {
       id
       created
@@ -57,16 +65,16 @@ export const getDatasetPage = gql`
  * @param {Object} props.datasetId Accession number / id for dataset to query
  */
 
-const hasEditQuery = getDatasetPage
-
-export const DatasetQueryHook = ({ datasetId, hasEditQuery }) => {
-  const user = getProfile()
+export const DatasetQueryHook = ({ datasetId }) => {
   const {
-    data: { dataset },
-    loading,
-    error,
-  } = useQuery(hasEditQuery, {
-    variables: { datasetId },
+    data: { dataset: { permissions: { level } = {} } = {} } = {},
+  } = useQuery(getPermissionLevel)
+  const hasEdit = level === 'admin' || level === 'rw'
+  const variables = { datasetId, hasEdit }
+  const skip = level === undefined
+  const { data: { dataset } = {} } = useQuery(getDatasetPage, {
+    variables,
+    skip,
   })
   if (loading) {
     return <Spinner text="Loading Dataset" active />
@@ -78,12 +86,8 @@ export const DatasetQueryHook = ({ datasetId, hasEditQuery }) => {
           value={{
             datasetId,
           }}>
-          {console.log(
-            hasEditQuery,
-            (user && user.admin) ||
-              hasEditPermissions(dataset.permissions, user && user.sub),
-          )}
           <DatasetPage dataset={dataset} />
+          {console.log(dataset.permissions.level)}
         </DatasetQueryContext.Provider>
       </ErrorBoundary>
     )
@@ -101,10 +105,7 @@ DatasetQueryHook.propTypes = {
  */
 const DatasetQuery = ({ match }) => (
   <ErrorBoundaryAssertionFailureException subject={'error in dataset query'}>
-    <DatasetQueryHook
-      datasetId={match.params.datasetId}
-      hasEditQuery={hasEditQuery}
-    />
+    <DatasetQueryHook datasetId={match.params.datasetId} />
   </ErrorBoundaryAssertionFailureException>
 )
 

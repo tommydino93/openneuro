@@ -8,17 +8,17 @@ import DatasetQueryContext from './dataset-query-context.js'
 import DatasetPage from './dataset-page.jsx'
 import * as DatasetQueryFragments from './dataset-query-fragments.js'
 import { DATASET_COMMENTS } from './comments-fragments.js'
-import { getProfile, hasEditPermissions } from '../../authentication/profile.js'
 import ErrorBoundary, {
   ErrorBoundaryAssertionFailureException,
 } from '../../errors/errorBoundary.jsx'
+import { getProfile, hasEditPermissions } from '../../authentication/profile.js'
 
 /**
  * Generate the dataset page query
  * @param {number} commentDepth How many levels to recurse for comments
  */
 export const getDatasetPage = gql`
-  query dataset($datasetId: ID!, $editTrue: Boolean!) {
+  query dataset($datasetId: ID!) {
     dataset(id: $datasetId) {
       id
       created
@@ -57,28 +57,16 @@ export const getDatasetPage = gql`
  * @param {Object} props.datasetId Accession number / id for dataset to query
  */
 
-// SOLUTION = TODO : fire a query to fetch dataset user info, pass into second (extant) query's directive expression
+const hasEditQuery = getDatasetPage
 
-//IDEAL CONDITION TO CHECK WRITE PERMISSIONS
-
-// const { dataset } = this.props
-// const editTrue = (dataset) => {
-//   const user = getProfile()
-//   return (user && user.admin) ||
-//     hasEditPermissions(dataset.permissions, user && user.sub)
-// }
-
-// CONDITION THAT DOESNT WORK BECAUSE hasEditPermissions NEEDS DATASET, WHICH IS FETCHED BY USEQUERY BELOW
-const user = getProfile()
-const editTrue = (user && user.admin) || hasEditPermissions ? false : true
-
-export const DatasetQueryHook = ({ datasetId, editTrue }) => {
+export const DatasetQueryHook = ({ datasetId, hasEditQuery }) => {
+  const user = getProfile()
   const {
     data: { dataset },
     loading,
     error,
-  } = useQuery(getDatasetPage, {
-    variables: { datasetId, editTrue },
+  } = useQuery(hasEditQuery, {
+    variables: { datasetId },
   })
   if (loading) {
     return <Spinner text="Loading Dataset" active />
@@ -90,6 +78,11 @@ export const DatasetQueryHook = ({ datasetId, editTrue }) => {
           value={{
             datasetId,
           }}>
+          {console.log(
+            hasEditQuery,
+            (user && user.admin) ||
+              hasEditPermissions(dataset.permissions, user && user.sub),
+          )}
           <DatasetPage dataset={dataset} />
         </DatasetQueryContext.Provider>
       </ErrorBoundary>
@@ -108,7 +101,10 @@ DatasetQueryHook.propTypes = {
  */
 const DatasetQuery = ({ match }) => (
   <ErrorBoundaryAssertionFailureException subject={'error in dataset query'}>
-    <DatasetQueryHook datasetId={match.params.datasetId} editTrue={editTrue} />
+    <DatasetQueryHook
+      datasetId={match.params.datasetId}
+      hasEditQuery={hasEditQuery}
+    />
   </ErrorBoundaryAssertionFailureException>
 )
 

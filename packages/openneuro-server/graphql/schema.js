@@ -552,7 +552,4 @@ const typeDefs = `
 export default makeExecutableSchema({
   typeDefs,
   resolvers,
-  parseOptions: {
-    experimentalFragmentVariables: true,
-  },
 })

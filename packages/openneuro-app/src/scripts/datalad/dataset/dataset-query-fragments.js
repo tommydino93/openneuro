@@ -18,7 +18,7 @@ export const DRAFT_FRAGMENT = gql`
         Funding
         ReferencesAndLinks
       }
-      files @include(if: $editTrue) {
+      files {
         id
         filename
         size

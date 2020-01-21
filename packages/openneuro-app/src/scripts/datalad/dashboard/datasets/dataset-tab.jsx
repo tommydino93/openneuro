@@ -16,7 +16,7 @@ const FullHeightFlexDiv = styled.div`
   flex: 0 1 auto;
 `
 
-const title = isPublic => (isPublic ? 'Public Datasets' : 'My Datasets')
+const title = isPublic => (isPublic ? 'Public Dataset Results' : 'My Datasets')
 
 const DatasetTabLoaded = ({ data, loadMoreRows, publicDashboard }) => {
   if (
@@ -51,6 +51,7 @@ const DatasetTab = ({
   loading,
   publicDashboard,
   error,
+  isMobile,
 }) => (
   <FullHeightFlexDiv className="dashboard-dataset-teasers datasets datasets-private">
     <Helmet>
@@ -61,17 +62,28 @@ const DatasetTab = ({
     <div className="header-filter-sort clearfix">
       <div className="admin header-wrap clearfix">
         <div className="row">
+          {isMobile && (
+            <div className="col-md-7">
+              <Search />
+            </div>
+          )}
           <div className="col-md-5">
             <h2>{title(publicDashboard)}</h2>
+            {isMobile && !loading && (
+              <h6>Results {data.datasets.pageInfo.count} </h6>
+            )}
           </div>
-          <div className="col-md-7">
-            <Search />
-          </div>
+          {!isMobile && (
+            <div className="col-md-7">
+              <Search />
+            </div>
+          )}
         </div>
       </div>
-      <div className="filters-sort-wrap clearfix">
-        <div className="sort clearfix">
-          <label>Sort by:</label>
+      <div className={isMobile ? '' : 'filters-sort-wrap clearfix'}>
+        <div className={isMobile ? '' : 'sort clearfix'}>
+          {!isMobile && <label>Sort by:</label>}
+          {/* <DatasetViewTitle>Sort By:</DatasetViewTitle> */}
           <DatasetSorter refetch={refetch} queryVariables={queryVariables} />
         </div>
         {publicDashboard ? null : (
@@ -104,6 +116,7 @@ DatasetTab.propTypes = {
   loading: PropTypes.bool,
   publicDashboard: PropTypes.bool,
   error: PropTypes.object,
+  isMobile: PropTypes.bool,
 }
 
 export default DatasetTab

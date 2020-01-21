@@ -43,6 +43,16 @@ export const addComment = (
   })
 }
 
+export const deleteComment = async (obj, { commentId }, { user }) => {
+  const existingComment = await Comment.findById(commentId).exec()
+  // You may only edit your own comments
+  if (existingComment.user._id === user) {
+    return existingComment.delete().then(() => true)
+  } else {
+    return Promise.reject(new Error('You may only delete your own comments.'))
+  }
+}
+
 export const editComment = async (
   obj,
   { commentId, comment: text },

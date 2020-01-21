@@ -51,7 +51,7 @@ const Comment = ({ datasetId, data, children }) => {
               {editMode ? 'Hide' : 'Edit'}
             </a>
             <AdminUser>
-              <a className="delete" onClick={() => setReplyMode(false)}>
+              <a className="delete" onClick={() => setReplyMode(!replyMode)}>
                 <i className="fa fa-trash" />
                 Delete
               </a>

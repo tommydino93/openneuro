@@ -10,6 +10,7 @@ import LoggedIn from '../../authentication/logged-in.jsx'
 const Comment = ({ datasetId, data, children }) => {
   const [replyMode, setReplyMode] = useState(false)
   const [editMode, setEditMode] = useState(false)
+  const [deleteMode, setDeleteMode] = useState(false)
   const parsedText = JSON.parse(data.text)
   const editorState = EditorState.createWithContent(convertFromRaw(parsedText))
   return (
@@ -29,6 +30,7 @@ const Comment = ({ datasetId, data, children }) => {
             <CommentEditor
               datasetId={datasetId}
               commentId={data.id}
+              deleteMode={deleteMode}
               state={editorState}
               done={() => setEditMode(false)}
             />
@@ -36,7 +38,9 @@ const Comment = ({ datasetId, data, children }) => {
             <Editor
               editorKey={data.id}
               editorState={editorState}
+              deleteMode={deleteMode}
               onChange={() => {}}
+              done={() => {}}
             />
           )}
         </div>
@@ -51,7 +55,7 @@ const Comment = ({ datasetId, data, children }) => {
               {editMode ? 'Hide' : 'Edit'}
             </a>
             <AdminUser>
-              <a className="delete" onClick={() => setReplyMode(!replyMode)}>
+              <a className="delete" onClick={() => setDeleteMode(deleteMode)}>
                 <i className="fa fa-trash" />
                 Delete
               </a>

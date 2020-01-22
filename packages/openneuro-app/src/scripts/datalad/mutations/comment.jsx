@@ -112,8 +112,7 @@ export const deleteCommentsReducer = (comments, { commentId }) => {
   const modifiedCommentIndex = nextCommentsState.findIndex(
     c => c.id === commentId,
   )
-  nextCommentsState[modifiedCommentIndex] = null // check side effects
-
+  nextCommentsState.splice(nextCommentsState[modifiedCommentIndex], 1)
   return nextCommentsState
 }
 
@@ -133,11 +132,12 @@ const CommentMutation = ({
         deleteMode ? DELETE_COMMENT : commentId ? EDIT_COMMENT : NEW_COMMENT
       }
       update={(cache, { data: { addComment } }) => {
-        console.log(deleteMode)
+        console.log(`Mutation ${deleteMode}`)
         const { comments } = cache.readFragment({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,
         })
+        console.log({ addComment })
         // Apply state reduction to cache for new comment changes
         const nextCommentsState = addComment
           ? newCommentsReducer(comments, {
@@ -149,6 +149,7 @@ const CommentMutation = ({
           : commentId && deleteMode
           ? deleteCommentsReducer(comments, { commentId })
           : modifyCommentsReducer(comments, { commentId, comment })
+        console.log({ nextCommentsState })
         cache.writeFragment({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,

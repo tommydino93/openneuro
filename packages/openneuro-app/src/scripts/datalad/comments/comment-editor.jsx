@@ -56,7 +56,6 @@ const CommentEditor = ({
           <CommentMutation
             datasetId={datasetId}
             parentId={parentId}
-            deleteMode={deleteMode}
             comment={editorState.getCurrentContent()}
             disabled={disabled}
             done={done}

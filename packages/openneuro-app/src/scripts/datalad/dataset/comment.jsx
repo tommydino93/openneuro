@@ -6,6 +6,7 @@ import { Editor, EditorState, convertFromRaw } from 'draft-js'
 import CommentEditor from '../comments/comment-editor.jsx'
 import AdminUser from '../../authentication/admin-user.jsx'
 import LoggedIn from '../../authentication/logged-in.jsx'
+import CommentMutation from '../mutations/comment.jsx'
 
 const Comment = ({ datasetId, data, children }) => {
   const [replyMode, setReplyMode] = useState(false)
@@ -55,11 +56,19 @@ const Comment = ({ datasetId, data, children }) => {
               {editMode ? 'Hide' : 'Edit'}
             </a>
             <AdminUser>
-              <a className="delete" onClick={() => setDeleteMode(deleteMode)}>
+              <a className="delete" onClick={() => setDeleteMode(!deleteMode)}>
                 <i className="fa fa-trash" />
                 Delete
               </a>
             </AdminUser>
+            {deleteMode && (
+              <CommentMutation
+                datasetId={datasetId}
+                commentId={data.id}
+                deleteMode={deleteMode}
+                done={() => {}}
+              />
+            )}
           </div>
         </LoggedIn>
       </div>
@@ -69,6 +78,7 @@ const Comment = ({ datasetId, data, children }) => {
             <CommentEditor
               datasetId={datasetId}
               parentId={data.id}
+              deleteMode={deleteMode}
               done={() => setReplyMode(false)}
             />
           ) : null}

@@ -13,7 +13,6 @@ const CommentEditor = ({
   parentId = null,
   commentId = null,
   state = null,
-  deleteMode,
   done,
 }) => {
   const [editorState, setEditorState] = useState(
@@ -47,7 +46,6 @@ const CommentEditor = ({
           <CommentMutation
             datasetId={datasetId}
             commentId={commentId}
-            deleteMode={deleteMode}
             comment={editorState.getCurrentContent()}
             disabled={disabled}
             done={done}
@@ -72,7 +70,6 @@ CommentEditor.propTypes = {
   commentId: PropTypes.string,
   state: PropTypes.object,
   done: PropTypes.func,
-  deleteMode: PropTypes.bool,
 }
 
 export default CommentEditor

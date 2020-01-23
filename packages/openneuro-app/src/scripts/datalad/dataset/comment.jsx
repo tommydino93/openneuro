@@ -31,15 +31,13 @@ const Comment = ({ datasetId, data, children }) => {
             <CommentEditor
               datasetId={datasetId}
               commentId={data.id}
-              deleteMode={deleteMode}
               state={editorState}
               done={() => setEditMode(false)}
             />
-          ) : (
+          ) : deleteMode ? null : (
             <Editor
               editorKey={data.id}
               editorState={editorState}
-              deleteMode={deleteMode}
               onChange={() => {}}
               done={() => {}}
             />
@@ -60,14 +58,14 @@ const Comment = ({ datasetId, data, children }) => {
                 <i className="fa fa-trash" />
                 Delete
               </a>
-            </AdminUser>
-            {deleteMode && (
               <CommentMutation
+                newComment={false}
                 datasetId={datasetId}
                 commentId={data.id}
                 deleteMode={deleteMode}
                 done={() => {}}
               />
+            </AdminUser>
             )}
           </div>
         </LoggedIn>
@@ -78,7 +76,6 @@ const Comment = ({ datasetId, data, children }) => {
             <CommentEditor
               datasetId={datasetId}
               parentId={data.id}
-              deleteMode={deleteMode}
               done={() => setReplyMode(false)}
             />
           ) : null}

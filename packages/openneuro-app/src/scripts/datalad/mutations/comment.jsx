@@ -112,7 +112,7 @@ export const deleteCommentsReducer = (comments, { commentId }) => {
   const modifiedCommentIndex = nextCommentsState.findIndex(
     c => c.id === commentId,
   )
-  nextCommentsState.splice(nextCommentsState[modifiedCommentIndex], 1)
+  nextCommentsState.splice(modifiedCommentIndex, 1)
   return nextCommentsState
 }
 
@@ -137,7 +137,6 @@ const CommentMutation = ({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,
         })
-        console.log({ addComment })
         // Apply state reduction to cache for new comment changes
         const nextCommentsState = addComment
           ? newCommentsReducer(comments, {

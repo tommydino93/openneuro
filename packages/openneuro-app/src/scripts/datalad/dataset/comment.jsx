@@ -16,22 +16,20 @@ import { datasetCacheId } from '../mutations/cache-id.js'
 
 const DELETE_COMMENT = gql`
   mutation deleteComment($commentId: ID!) {
-    deleteComment(parentId: $parentId, commentId: $commentId)
+    deleteComment(commentId: $commentId)
   }
 `
-const DeleteComment = ({ datasetId, commentId, parentId, done = () => {} }) => {
+const DeleteComment = ({ datasetId, commentId, done = () => {} }) => {
   return (
     <Mutation
       mutation={DELETE_COMMENT}
       update={(cache, { data: {} }) => {
-        const { comments, parent } = cache.readFragment({
+        const { comments } = cache.readFragment({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,
         })
         // update cache sans deleted comment
-        const nextCommentsState = deleteCommentsReducer(comments, parent, {
-          commentId,
-        })
+        const nextCommentsState = deleteCommentsReducer(comments, { commentId })
         cache.writeFragment({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,

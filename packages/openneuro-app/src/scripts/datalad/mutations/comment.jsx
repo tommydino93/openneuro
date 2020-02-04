@@ -92,16 +92,8 @@ export const modifyCommentsReducer = (comments, { commentId, comment }) => {
   return nextCommentsState
 }
 
-/**
- * Remove an existing comment
- * @param {Object[]} comments
- * @param {Object} arguments
- * @param {any} parent
- * @param {string} arguments.commentId
- * @returns {Object[]}
- */
-export const deleteCommentsReducer = (comments, parent, { commentId }) => {
-  console.log('p', parent)
+export const deleteCommentsReducer = (comments, { commentId }) => {
+  console.log({ comments })
   let commentsCopy = [...comments]
   const modifiedCommentIndex = commentsCopy.findIndex(c => c.id === commentId)
   commentsCopy.splice(modifiedCommentIndex, 1)

@@ -19,12 +19,6 @@ const EDIT_COMMENT = gql`
   }
 `
 
-const DELETE_COMMENT = gql`
-  mutation deleteComment($commentId: ID!) {
-    deleteComment(commentId: $commentId)
-  }
-`
-
 /**
  * Create a new comment cache entry for Apollo update
  * @param {string} id Comment ID
@@ -77,7 +71,7 @@ export const newCommentsReducer = (
 }
 
 /**
- * Modify an exsiting comment and return new state based on arguments
+ * Modify an existing comment and return new state based on arguments
  * @param {Object[]} comments
  * @param {Object} arguments
  * @param {string} arguments.commentId
@@ -85,7 +79,6 @@ export const newCommentsReducer = (
  * @returns {Object[]}
  */
 export const modifyCommentsReducer = (comments, { commentId, comment }) => {
-  console.log('edit')
   // Must copy with freezeResults enabled
   const nextCommentsState = [...comments]
   const modifiedCommentIndex = nextCommentsState.findIndex(
@@ -100,20 +93,19 @@ export const modifyCommentsReducer = (comments, { commentId, comment }) => {
 }
 
 /**
- * Modify an exsiting comment and return new state based on arguments
+ * Remove an existing comment
  * @param {Object[]} comments
  * @param {Object} arguments
+ * @param {any} parent
  * @param {string} arguments.commentId
  * @returns {Object[]}
  */
-export const deleteCommentsReducer = (comments, { commentId }) => {
-  console.log('del')
-  const nextCommentsState = [...comments]
-  const modifiedCommentIndex = nextCommentsState.findIndex(
-    c => c.id === commentId,
-  )
-  nextCommentsState.splice(modifiedCommentIndex, 1)
-  return nextCommentsState
+export const deleteCommentsReducer = (comments, parent, { commentId }) => {
+  console.log('p', parent)
+  let commentsCopy = [...comments]
+  const modifiedCommentIndex = commentsCopy.findIndex(c => c.id === commentId)
+  commentsCopy.splice(modifiedCommentIndex, 1)
+  return commentsCopy
 }
 
 const CommentMutation = ({
@@ -123,16 +115,12 @@ const CommentMutation = ({
   comment,
   disabled,
   profile,
-  deleteMode,
   done = () => {},
 }) => {
   return (
     <Mutation
-      mutation={
-        deleteMode ? DELETE_COMMENT : commentId ? EDIT_COMMENT : NEW_COMMENT
-      }
+      mutation={commentId ? EDIT_COMMENT : NEW_COMMENT}
       update={(cache, { data: { addComment } }) => {
-        console.log(`Mutation ${deleteMode}`)
         const { comments } = cache.readFragment({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,
@@ -145,10 +133,7 @@ const CommentMutation = ({
               comment,
               profile,
             })
-          : commentId && deleteMode
-          ? deleteCommentsReducer(comments, { commentId })
           : modifyCommentsReducer(comments, { commentId, comment })
-        console.log({ nextCommentsState })
         cache.writeFragment({
           id: datasetCacheId(datasetId),
           fragment: DATASET_COMMENTS,
@@ -189,7 +174,6 @@ CommentMutation.propTypes = {
   disabled: PropTypes.bool,
   profile: PropTypes.object,
   done: PropTypes.func,
-  deleteMode: PropTypes.bool,
 }
 
 export default withProfile(CommentMutation)

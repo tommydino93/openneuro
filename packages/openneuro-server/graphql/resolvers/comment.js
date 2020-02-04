@@ -43,9 +43,11 @@ export const addComment = (
   })
 }
 
-export const deleteComment = async (obj, { commentId }, { user }) => {
+export const deleteComment = async (obj, { parentId, commentId }, { user }) => {
+  if (parentId) {
+    return
+  }
   const existingComment = await Comment.findById(commentId).exec()
-  console.log({ existingComment })
   // You may only delete your own comments
   if (existingComment.user._id === user) {
     return Comment.deleteOne({ commentId })

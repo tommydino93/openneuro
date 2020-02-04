@@ -129,7 +129,7 @@ export const typeDefs = `
     # Edits an existing comment
     editComment(commentId: ID!, comment: String!): Boolean
     # Deletes an existing comment
-    deleteComment(commentId: ID!): Boolean
+    deleteComment(parentId: ID, commentId: ID!): Boolean
     # Subscribes user to newsletter
     subscribeToNewsletter(email: String!): Boolean
     # Upserts dataset metadata

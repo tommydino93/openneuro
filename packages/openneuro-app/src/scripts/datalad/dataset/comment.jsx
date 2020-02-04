@@ -6,12 +6,68 @@ import { Editor, EditorState, convertFromRaw } from 'draft-js'
 import CommentEditor from '../comments/comment-editor.jsx'
 import AdminUser from '../../authentication/admin-user.jsx'
 import LoggedIn from '../../authentication/logged-in.jsx'
-import CommentMutation from '../mutations/comment.jsx'
+import CommentMutation, {
+  deleteCommentsReducer,
+} from '../mutations/comment.jsx'
+import gql from 'graphql-tag'
+import { Mutation } from 'react-apollo'
+import { DATASET_COMMENTS } from '../dataset/comments-fragments.js'
+import { datasetCacheId } from '../mutations/cache-id.js'
+
+const DELETE_COMMENT = gql`
+  mutation deleteComment($commentId: ID!) {
+    deleteComment(parentId: $parentId, commentId: $commentId)
+  }
+`
+const DeleteComment = ({ datasetId, commentId, parentId, done = () => {} }) => {
+  return (
+    <Mutation
+      mutation={DELETE_COMMENT}
+      update={(cache, { data: {} }) => {
+        const { comments, parent } = cache.readFragment({
+          id: datasetCacheId(datasetId),
+          fragment: DATASET_COMMENTS,
+        })
+        // update cache sans deleted comment
+        const nextCommentsState = deleteCommentsReducer(comments, parent, {
+          commentId,
+        })
+        cache.writeFragment({
+          id: datasetCacheId(datasetId),
+          fragment: DATASET_COMMENTS,
+          data: {
+            __typename: 'Dataset',
+            id: datasetId,
+            comments: nextCommentsState,
+          },
+        })
+      }}>
+      {deleteCommentsReducer => (
+        <a
+          className="delete"
+          onClick={async () => {
+            await deleteCommentsReducer({ variables: { commentId } })
+            done()
+          }}>
+          <i className="fa fa-trash" />
+          Delete
+        </a>
+      )}
+    </Mutation>
+  )
+}
+
+DeleteComment.propTypes = {
+  datasetId: PropTypes.string,
+  parentId: PropTypes.string,
+  commentId: PropTypes.string,
+  comment: PropTypes.object,
+  done: PropTypes.func,
+}
 
 const Comment = ({ datasetId, data, children }) => {
   const [replyMode, setReplyMode] = useState(false)
   const [editMode, setEditMode] = useState(false)
-  const [deleteMode, setDeleteMode] = useState(false)
   const parsedText = JSON.parse(data.text)
   const editorState = EditorState.createWithContent(convertFromRaw(parsedText))
   return (
@@ -34,12 +90,11 @@ const Comment = ({ datasetId, data, children }) => {
               state={editorState}
               done={() => setEditMode(false)}
             />
-          ) : deleteMode ? null : (
+          ) : (
             <Editor
               editorKey={data.id}
               editorState={editorState}
               onChange={() => {}}
-              done={() => {}}
             />
           )}
         </div>
@@ -54,19 +109,18 @@ const Comment = ({ datasetId, data, children }) => {
               {editMode ? 'Hide' : 'Edit'}
             </a>
             <AdminUser>
-              <a className="delete" onClick={() => setDeleteMode(!deleteMode)}>
-                <i className="fa fa-trash" />
-                Delete
-              </a>
+              <DeleteComment
+                datasetId={datasetId}
+                commentId={data.id}
+                done={() => {}}
+              />
               <CommentMutation
                 newComment={false}
                 datasetId={datasetId}
                 commentId={data.id}
-                deleteMode={deleteMode}
                 done={() => {}}
               />
             </AdminUser>
-            )}
           </div>
         </LoggedIn>
       </div>

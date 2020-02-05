@@ -52,7 +52,6 @@ export const newCommentsReducer = (
   comments,
   { parentId = null, commentId, comment, profile },
 ) => {
-  console.log('create', parentId)
   const newComment = commentStateFactory(commentId, parentId, comment, profile)
   // Must copy with freezeResults enabled
   const nextCommentsState = [...comments, newComment]
@@ -92,33 +91,45 @@ export const modifyCommentsReducer = (comments, { commentId, comment }) => {
   return nextCommentsState
 }
 
-// const parseReplies = (comments, arr) => {
-//   let indices = []
-//   for (let item in arr) {
-//     indices.push(arr[item].id)
-//   }
-//   for (let item in indices) {
-//     console.log(indices[item])
-//     if (comments[indices[item]].replies.length !== 0) {
-//       parseReplies(comments, indices)
-//     }
-//   }
-//   return indices
-// }
-
 export const deleteCommentsReducer = (comments, { commentId }) => {
+  console.log('comments', { comments, commentId })
   let indices = []
-  let commentsCopy = [...comments]
-  const modifiedCommentIndex = commentsCopy.findIndex(c => c.id === commentId)
-  indices.push(modifiedCommentIndex)
-  if (commentsCopy[modifiedCommentIndex].replies.length !== 0) {
+  // comments array copy
+  let nextCommentsState = [...comments]
+  // find the comment to delete in comments array
+  let deletedCommentIndex = nextCommentsState.findIndex(c => c.id === commentId)
+  // push index of comment to delete
+  indices.push(deletedCommentIndex)
+  // if deleted comment has replies
+  if (nextCommentsState[deletedCommentIndex].replies.length !== 0) {
     console.error('has replies')
-  } else if (commentsCopy[modifiedCommentIndex].parent !== null) {
-    console.error('has parent')
-  } else {
-    commentsCopy.splice(modifiedCommentIndex, 1)
-    return commentsCopy
   }
+  // if deleted comment has parent
+  else if (nextCommentsState[deletedCommentIndex].parent !== null) {
+    // parent comment id
+    let parentId = nextCommentsState[deletedCommentIndex].parent.id
+    // where in comments is the parent comment ?
+    const parentCommentIndex = nextCommentsState.findIndex(
+      c => c.id === parentId,
+    )
+    // where in the parent comment is the deleted comment listed as a reply ?
+    let deletedReplyIndex = nextCommentsState[
+      parentCommentIndex
+    ].replies.findIndex(c => c.id === commentId)
+    // remove reply
+    let parentComment = nextCommentsState[parentCommentIndex]
+    let replies = [...parentComment.replies]
+    replies.splice(deletedReplyIndex, 1)
+    parentComment.replies = [...replies]
+    console.log(parentComment.replies)
+    nextCommentsState[parentCommentIndex] = parentComment
+    console.log(nextCommentsState[parentCommentIndex])
+    console.log('post-replies', nextCommentsState[parentCommentIndex].replies)
+  }
+  console.log('before end', { nextCommentsState })
+  nextCommentsState.splice(deletedCommentIndex, 1)
+  console.log('at end', nextCommentsState)
+  return nextCommentsState
 }
 
 const CommentMutation = ({

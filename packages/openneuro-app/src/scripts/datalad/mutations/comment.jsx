@@ -52,7 +52,7 @@ export const newCommentsReducer = (
   comments,
   { parentId = null, commentId, comment, profile },
 ) => {
-  console.log('create')
+  console.log('create', parentId)
   const newComment = commentStateFactory(commentId, parentId, comment, profile)
   // Must copy with freezeResults enabled
   const nextCommentsState = [...comments, newComment]
@@ -92,12 +92,33 @@ export const modifyCommentsReducer = (comments, { commentId, comment }) => {
   return nextCommentsState
 }
 
+// const parseReplies = (comments, arr) => {
+//   let indices = []
+//   for (let item in arr) {
+//     indices.push(arr[item].id)
+//   }
+//   for (let item in indices) {
+//     console.log(indices[item])
+//     if (comments[indices[item]].replies.length !== 0) {
+//       parseReplies(comments, indices)
+//     }
+//   }
+//   return indices
+// }
+
 export const deleteCommentsReducer = (comments, { commentId }) => {
-  console.log({ comments })
+  let indices = []
   let commentsCopy = [...comments]
   const modifiedCommentIndex = commentsCopy.findIndex(c => c.id === commentId)
-  commentsCopy.splice(modifiedCommentIndex, 1)
-  return commentsCopy
+  indices.push(modifiedCommentIndex)
+  if (commentsCopy[modifiedCommentIndex].replies.length !== 0) {
+    console.error('has replies')
+  } else if (commentsCopy[modifiedCommentIndex].parent !== null) {
+    console.error('has parent')
+  } else {
+    commentsCopy.splice(modifiedCommentIndex, 1)
+    return commentsCopy
+  }
 }
 
 const CommentMutation = ({

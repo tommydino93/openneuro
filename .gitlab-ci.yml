@@ -1,0 +1,164 @@
+image: node:12
+
+services:
+  - docker:dind
+
+variables:
+  PIPENV_VENV_IN_PROJECT: "true"
+  GIT_ANNEX_URL: "http://archive.org/download/git-annex-builds/SHA256E-s52844027--52257d8de278e4ecf94a971c716b7929f6d0e1fe6c5a65ed40b03f0964f9c85d.tar.gz"
+
+stages:
+  - dependencies
+  - test
+  - build
+  - deploy
+
+.nodejs-cache: &nodejs-cache
+  stage: dependencies
+  cache:
+    policy: pull
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - "node_modules"
+      - "packages/*/node_modules"
+
+.python-cache: &python-cache
+  stage: dependencies
+  cache:
+    policy: pull
+    key:
+      prefix: "$GIT_ANNEX_URL"
+      files:
+        - services/datalad/Pipfile.lock
+    paths:
+      - "services/datalad/.venv"
+      - "git-annex.linux"
+      - ".local/lib/python3.8/site-packages"
+
+setup_nodejs:
+  cache:
+    policy: push
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - "node_modules"
+      - "packages/*/node_modules"
+  stage: dependencies
+  script:
+    - yarn install
+  only:
+    changes:
+      - yarn.lock
+
+lint_nodejs:
+  <<: *nodejs-cache
+  stage: test
+  script:
+    - yarn lint
+
+test_nodejs:
+  <<: *nodejs-cache
+  stage: test
+  script:
+    - yarn coverage --no-cache -w 2
+
+setup_python:
+  cache:
+    policy: push
+    key:
+      prefix: "$GIT_ANNEX_URL"
+      files:
+        - services/datalad/Pipfile.lock
+    paths:
+      - "services/datalad/.venv"
+      - "git-annex.linux"
+      - ".local/lib/python3.8/site-packages"
+  stage: dependencies
+  image: python:3.8-slim
+  script:
+    - apt-get update
+    - apt-get install -y curl
+    - if [ ! -d git-annex.linux ]; then curl -L $GIT_ANNEX_URL | tar -xvz; fi
+    - cd services/datalad
+    - pip install 'pipenv==2018.11.26'
+    - pipenv install --dev
+  only:
+    changes:
+      - services/datalad/Pipfile.lock
+
+test_python:
+  <<: *python-cache
+  stage: test
+  image: python:3.8-slim
+  before_script:
+    - export PATH="$PWD/git-annex.linux:$PATH"
+  script:
+    - cd services/datalad
+    - pip install 'pipenv==2018.11.26'
+    - pipenv run pytest --cov ./datalad_service
+    - pipenv run python -m codecov
+
+build_server:
+  image: docker
+  stage: build
+  needs: ["test_nodejs"]
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/server:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE/server --tag $CI_REGISTRY_IMAGE/server:latest --tag $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA packages/openneuro-server
+    - docker push $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/server:latest
+
+build_app:
+  image: docker
+  stage: build
+  needs: ["test_nodejs"]
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/app:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE/app --tag $CI_REGISTRY_IMAGE/app:latest --tag $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHA packages/openneuro-app
+    - docker push $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/app:latest
+
+build_indexer:
+  image: docker
+  stage: build
+  needs: ["test_nodejs"]
+  script:
+    - docker pull $CI_REGISTRY_IMAGE/indexer:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE/indexer --tag $CI_REGISTRY_IMAGE/indexer:latest --tag $CI_REGISTRY_IMAGE/indexer:$CI_COMMIT_SHA  packages/openneuro-indexer
+    - docker push $CI_REGISTRY_IMAGE/indexer:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/indexer:latest
+
+build_datalad_service:
+  image: docker
+  stage: build
+  needs: ["test_python"]
+  script:
+    - cd services/datalad
+    - docker pull $CI_REGISTRY_IMAGE/datalad-service:latest || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE/datalad-service --tag $CI_REGISTRY_IMAGE/datalad-service:latest --tag $CI_REGISTRY_IMAGE/datalad-service:$CI_COMMIT_SHA .
+    - docker push $CI_REGISTRY_IMAGE/datalad-service:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/datalad-service:latest
+
+deploy_docker_images:
+  image: docker
+  stage: deploy
+  needs: ["build_app", "build_indexer", "build_server", "build_datalad_service"]
+  only:
+    - tags
+  script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASS
+    - docker pull $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHA
+    - docker pull $CI_REGISTRY_IMAGE/indexer:$CI_COMMIT_SHA
+    - docker pull $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA
+    - docker pull $CI_REGISTRY_IMAGE/datalad_service:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE/app:$CI_COMMIT_SHA openneuro/app:$CI_COMMIT_TAG
+    - docker tag $CI_REGISTRY_IMAGE/indexer:$CI_COMMIT_SHA openneuro/indexer:$CI_COMMIT_TAG
+    - docker tag $CI_REGISTRY_IMAGE/server:$CI_COMMIT_SHA openneuro/server:$CI_COMMIT_TAG
+    - docker tag $CI_REGISTRY_IMAGE/datalad_service:$CI_COMMIT_SHA openneuro/datalad_service:$CI_COMMIT_TAG
+    - docker push openneuro/app:$CI_COMMIT_TAG
+    - docker push openneuro/indexer:$CI_COMMIT_TAG
+    - docker push openneuro/server:$CI_COMMIT_TAG
+    - docker push openneuro/datalad_service:$CI_COMMIT_TAG

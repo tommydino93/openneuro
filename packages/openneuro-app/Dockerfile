@@ -8,7 +8,7 @@ ADD . /srv
 WORKDIR /srv
 
 # Build the frontend
-RUN yarn install --pure-lockfile && yarn bootstrap
+RUN yarn install --pure-lockfile
 
 WORKDIR /srv/packages/openneuro-app
 

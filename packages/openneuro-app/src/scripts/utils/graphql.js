@@ -2,7 +2,7 @@
 // currently not in use
 import { createClient } from 'openneuro-client'
 import config from '../../config'
-import { version } from '../../lerna.json'
+import { version } from '../../version'
 
 export default createClient(`${config.url}/crn/graphql`, {
   clientVersion: version,

@@ -12,7 +12,7 @@ import { frontPage } from './front-page/front-page-content'
 import Index from './index.jsx'
 import analyticsWrapper from './utils/analytics.jsx'
 import { createClient } from 'openneuro-client'
-import { version } from '../lerna.json'
+import { version } from '../version'
 import { CookiesProvider } from 'react-cookie'
 import { ToastContainer } from 'react-toastify'
 

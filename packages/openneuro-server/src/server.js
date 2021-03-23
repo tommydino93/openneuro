@@ -4,6 +4,15 @@ start({
   serviceName: 'openneuro-server',
 })
 
+/**
+ * In Node environments, ignore these imports
+ */
+const noop = () => {
+  return
+}
+require.extensions['.png'] = noop
+require.extensions['.scss'] = noop
+
 import * as Sentry from '@sentry/node'
 import { createServer } from 'http'
 import mongoose from 'mongoose'

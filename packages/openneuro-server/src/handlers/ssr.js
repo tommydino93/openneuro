@@ -4,6 +4,8 @@ import { SchemaLink } from '@apollo/client/link/schema'
 //import { App } from 'openneuro-app'
 import schema from '../graphql/schema.js'
 
+const App = ''
+
 const ssrClient = new ApolloClient({
   ssrMode: true,
   link: new SchemaLink({ schema }),
@@ -16,5 +18,5 @@ const ssrClient = new ApolloClient({
  * @param {*} res
  */
 export function ssrHandler(req, res) {
-  //req.send(renderToString(App))
+  req.send(renderToString(App))
 }

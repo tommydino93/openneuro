@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/browser'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './app.jsx'
-import { version } from '../lerna.json'
+import { version } from '../version'
 import { loadConfig } from './config'
 import * as GoogleAnalytics from 'react-ga'
 

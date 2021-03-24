@@ -3,20 +3,17 @@ version: "2.3"
 
 # shared volumes
 volumes:
-  yarn_cache:
   webpack_cache:
 
 services:
   # This dummy service provides shared configuration for all Node deps
   node:
-    build: 
-      context: .
-      target: dependencies
-    image: openneuro/node
+    user: "${UID}:${GID}"
+    image: node:14.16.0
     env_file: ./config.env
     working_dir: /srv
     volumes:
-      - yarn_cache:/usr/local/share/.cache
+      - ./:/srv
 
   # web app bundle build
   app:

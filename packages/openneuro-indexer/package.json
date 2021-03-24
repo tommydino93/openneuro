@@ -10,10 +10,9 @@
   "jest": {
     "testEnvironment": "node"
   },
-  "bin": {
-    "openneuro-indexer": "./src/index.ts"
-  },
+  "bin": "./src/index.ts",
   "dependencies": {
+    "@apollo/client": "^3.3.12",
     "@elastic/elasticsearch": "^7.5.0",
     "openneuro-client": "^3.30.0",
     "ts-node": "^9.1.1",

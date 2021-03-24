@@ -16,7 +16,7 @@ require.extensions['.scss'] = noop
 import * as Sentry from '@sentry/node'
 import { createServer } from 'http'
 import mongoose from 'mongoose'
-import subscriptionServerFactory from './libs/subscription-server.js'
+import { useSubscriptionServer } from './libs/subscription-server.js'
 import { connect as redisConnect } from './libs/redis'
 import notifications from './libs/notifications'
 import config from './config'
@@ -56,6 +56,6 @@ redisConnectionSetup().then(() => {
     // eslint-disable-next-line no-console
     console.log('Server is listening on port ' + config.port)
     // Setup GraphQL subscription transport
-    subscriptionServerFactory(server)
+    useSubscriptionServer(server)
   })
 })

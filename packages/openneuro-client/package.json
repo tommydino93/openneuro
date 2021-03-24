@@ -11,12 +11,14 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@apollo/client": "3.3.11",
+    "@apollo/client": "^3.3.12",
+    "cross-fetch": "^3.1.2",
     "graphql": "14.7.0",
     "semver": "^5.5.0",
-    "subscriptions-transport-ws": "^0.9.15"
+    "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
+    "@types/zen-observable": "^0",
     "graphql-tools": "7.0.4"
   },
   "jest": {

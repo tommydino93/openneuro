@@ -5,6 +5,7 @@
     "jsx": "react",
     "downlevelIteration": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es2020",
     "module": "commonjs",
     "moduleResolution": "node",

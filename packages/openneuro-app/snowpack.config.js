@@ -12,7 +12,10 @@ module.exports = {
   packageOptions: {
     polyfillNode: true,
   },
-  plugins: ['@snowpack/plugin-sass', '@snowpack/plugin-typescript'],
+  plugins: [
+    '@snowpack/plugin-sass',
+    ['@snowpack/plugin-typescript', { tsc: 'yarn tsc' }],
+  ],
   devOptions: {
     port: 9876,
   },

@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Panel, PanelGroup } from 'react-bootstrap'
 
 class ValidationPanel extends React.Component {
   constructor(props) {
@@ -26,15 +25,15 @@ class ValidationPanel extends React.Component {
 
   render() {
     return (
-      <PanelGroup
+      <div
         accordion
         className="validation-wrap"
         activeKey={this.state.activeKey}
         onSelect={this.togglePanel}>
-        <Panel className="status" header={this.props.heading} eventKey="1">
+        <div className="status" header={this.props.heading} eventKey="1">
           {this.props.children ? this.props.children : null}
-        </Panel>
-      </PanelGroup>
+        </div>
+      </div>
     )
   }
 }

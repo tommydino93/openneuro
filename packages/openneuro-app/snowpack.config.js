@@ -15,6 +15,13 @@ module.exports = {
   plugins: [
     '@snowpack/plugin-sass',
     ['@snowpack/plugin-typescript', { tsc: 'yarn tsc' }],
+    [
+      'snowpack-plugin-replace',
+      {
+        // Handle incorrect uuid imports in aws-sdk (via bids-validator)
+        list: [{ from: '{ v4 } from "uuid"', to: 'v4 from "uuid"' }],
+      },
+    ],
   ],
   devOptions: {
     port: 9876,

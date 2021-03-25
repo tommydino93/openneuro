@@ -3,7 +3,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import pluralize from 'pluralize'
-import { Accordion, Panel } from 'react-bootstrap'
 import Issues from './validation-results.issues.jsx'
 
 // component setup --------------------------------------------------------
@@ -30,12 +29,12 @@ export default class ValidationResults extends React.Component {
         </span>
       )
       errorsWrap = (
-        <Panel
+        <div
           className="fade-in upload-panel error-wrap"
           header={errorHeader}
           eventKey="1">
           <Issues issues={errors} issueType="Error" />
-        </Panel>
+        </div>
       )
     }
 
@@ -50,21 +49,21 @@ export default class ValidationResults extends React.Component {
         </span>
       )
       warningWrap = (
-        <Panel
+        <div
           className="fade-in upload-panel warning-wrap"
           header={warningHeader}
           eventKey="2">
           <Issues issues={warnings} issueType="Warning" />
-        </Panel>
+        </div>
       )
     }
 
     // validations errors and warning wraps
     return (
-      <Accordion className="validation-messages" accordion>
+      <div className="validation-messages" accordion>
         {errorsWrap}
         {warningWrap}
-      </Accordion>
+      </div>
     )
   }
 

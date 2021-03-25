@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
-import { Panel } from 'react-bootstrap'
 import styled from '@emotion/styled'
 import DownloadLink from './download-link.jsx'
 import DownloadS3 from './download-s3.jsx'

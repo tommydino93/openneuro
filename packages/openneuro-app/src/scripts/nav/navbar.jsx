@@ -4,7 +4,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withRouter, Link } from 'react-router-dom'
 import NavMenu from './navbar.navmenu.jsx'
-import { Navbar } from 'react-bootstrap'
 import LoginModal from '../common/partials/login.jsx'
 import { frontPage } from '../front-page/front-page-content.js'
 import styled from '@emotion/styled'
@@ -77,23 +76,23 @@ class BSNavbar extends React.Component {
   render() {
     return (
       <>
-        <Navbar
+        <div
           onToggle={this.setNavExpanded}
           expanded={this.state.navExpanded}>
-          <Navbar.Header>
-            <Navbar.Brand>
+          <div>
+            <div>
               <OpenNeuroBrand />
-            </Navbar.Brand>
-            <Navbar.Toggle />
-          </Navbar.Header>
-          <Navbar.Collapse>
-            <NavMenu
+            </div>
+            <div />
+          </div>
+          <div>
+            <div
               loginModal={this.loginModal}
               supportModal={this.supportModal}
             />
-          </Navbar.Collapse>
-        </Navbar>
-        <NavbarSpacer />
+          </div>
+        </div>
+        <div />
         {this.state.supportModal && (
           <Overlay>
             <ModalContainer>

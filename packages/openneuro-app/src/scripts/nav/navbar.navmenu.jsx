@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { NavLink } from 'react-router-dom'
 import Usermenu from './navbar.usermenu.jsx'
 import UploaderView from '../uploader/uploader-view.jsx'
-import { Navbar } from 'react-bootstrap'
 import withProfile from '../authentication/withProfile.jsx'
 import LoggedIn from '../authentication/logged-in.jsx'
 import LoggedOut from '../authentication/logged-out.jsx'
@@ -86,7 +85,7 @@ const NavMenu = ({ supportModal, loginModal }) => {
         </li>
       )}
       <li>
-        <Navbar.Collapse>
+        <div>
           <Usermenu />
           <LoggedOut>
             <div className="navbar-right sign-in-nav-btn">
@@ -95,7 +94,7 @@ const NavMenu = ({ supportModal, loginModal }) => {
               </button>
             </div>
           </LoggedOut>
-        </Navbar.Collapse>
+        </div>
       </li>
     </ul>
   )

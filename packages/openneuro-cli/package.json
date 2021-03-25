@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.3.12",
-    "bids-validator": "1.6.2",
+    "bids-validator": "file:/home/nell/Git/crn/bids-validator/bids-validator",
     "cli-progress": "^3.8.2",
     "colors": "^1.4.0",
     "commander": "^2.15.1",

@@ -13,12 +13,12 @@ import Index from './index.jsx'
 import analyticsWrapper from './utils/analytics.jsx'
 import { createClient } from 'openneuro-client'
 import { version } from '../version'
-import { CookiesProvider } from 'react-cookie'
+import ReactCookie from 'react-cookie'
 import { ToastContainer } from 'react-toastify'
 
 const App = ({ config }) => {
   return (
-    <CookiesProvider>
+    <ReactCookie.CookiesProvider>
       <ApolloProvider
         client={createClient(`${config.url}/crn/graphql`, {
           clientVersion: version,
@@ -34,7 +34,7 @@ const App = ({ config }) => {
           <ToastContainer position="bottom-right" />
         </>
       </ApolloProvider>
-    </CookiesProvider>
+    </ReactCookie.CookiesProvider>
   )
 }
 

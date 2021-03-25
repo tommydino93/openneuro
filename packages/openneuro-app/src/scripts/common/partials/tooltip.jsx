@@ -2,7 +2,6 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 import newId from '../../utils/newid'
 
 export default class TooltipTop extends React.PureComponent {
@@ -12,16 +11,16 @@ export default class TooltipTop extends React.PureComponent {
   }
 
   render() {
-    const tooltip = <Tooltip id={this.id}>{this.props.tooltip}</Tooltip>
+    const tooltip = <div id={this.id}>{this.props.tooltip}</div>
 
     return this.props.tooltip ? (
-      <OverlayTrigger
+      <div
         placement="top"
         overlay={tooltip}
         delayShow={300}
         delayHide={150}>
         {this.props.children}
-      </OverlayTrigger>
+      </div>
     ) : (
       this.props.children
     )

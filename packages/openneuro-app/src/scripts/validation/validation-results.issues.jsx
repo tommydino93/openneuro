@@ -2,7 +2,6 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Accordion, Panel } from 'react-bootstrap'
 import pluralize from 'pluralize'
 import Issue from './validation-results.issues.issue.jsx'
 
@@ -56,17 +55,17 @@ class Issues extends React.Component {
 
       // issue panel
       return (
-        <Panel
+        <div
           key={index}
           header={header}
-          className="validation-error fade-in"
+          className="panel validation-error fade-in"
           eventKey={index}>
           {subErrors}
-        </Panel>
+        </div>
       )
     })
 
-    return <Accordion>{issues}</Accordion>
+    return <div>{issues}</div>
   }
 }
 

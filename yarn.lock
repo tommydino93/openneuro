@@ -2875,6 +2875,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@emotion/types@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@emotion/types@npm:0.7.0"
+  checksum: da66f56abeeb55a58bc26a1bbd9d1a7a1fec0f457b5132766362c7cbd020d70bc78ae4f2bc96b73172db695fb9dc7a3933f236b9fc3b3cd4671a3cc5aeff3082
+  languageName: node
+  linkType: hard
+
 "@emotion/unitless@npm:0.7.5":
   version: 0.7.5
   resolution: "@emotion/unitless@npm:0.7.5"
@@ -4708,6 +4715,7 @@ __metadata:
     "@elastic/apm-rum": ^5.5.0
     "@emotion/core": ^10.0.4
     "@emotion/styled": ^10.0.4
+    "@emotion/types": ^0.7.0
     "@jest/globals": ^26.6.2
     "@loadable/babel-plugin": ^5.10.3
     "@loadable/component": ^5.7.0

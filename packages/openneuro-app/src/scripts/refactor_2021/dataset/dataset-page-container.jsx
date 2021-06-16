@@ -22,11 +22,8 @@ import {
   DatasetHeaderMeta,
 } from '@openneuro/components'
 
-import './dataset-page.scss'
+import '@openneuro/components/dataset/dataset-page.scss'
 
-export interface DraftDatasetPageExampleProps {
-  dataset
-}
 const formatDate = dateObject =>
   new Date(dateObject).toISOString().split('T')[0]
 
@@ -36,7 +33,7 @@ const snapshotVersion = location => {
   return matches && matches[1]
 }
 
-const DatasetPageContainer = ({ dataset }: DraftDatasetPageExampleProps) => {
+const DatasetPageContainer = ({ dataset }) => {
   const location = useLocation()
   const activeDataset = snapshotVersion(location) || 'draft'
 

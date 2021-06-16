@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
-import DatasetQuery from './dataset-query.jsx'
+import DatasetQuery from './dataset-query'
 
 const Dataset = () => {
   return (

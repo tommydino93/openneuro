@@ -6,7 +6,7 @@ import { useQuery, gql } from '@apollo/client'
 import Spinner from '../../common/partials/spinner.jsx'
 import DatasetQueryContext from './dataset-query-context.js'
 import DatasetContext from './dataset-context.js'
-import DatasetPage from './dataset-page.jsx'
+import DatasetPageContainer from './dataset-page'
 import FilesSubscription from '../subscriptions/files-subscription.jsx'
 import usePermissionsSubscription from '../subscriptions/usePermissionsSubscription'
 import useSnapshotsUpdatedSubscriptions from '../subscriptions/useSnapshotsUpdatedSubscriptions'
@@ -15,7 +15,7 @@ import useDatasetDeletedSubscription, {
 } from '../subscriptions/useDatasetDeletedSubscription.jsx'
 import useDraftSubscription from '../subscriptions/useDraftSubscription.js'
 import * as DatasetQueryFragments from './dataset-query-fragments.js'
-import { DATASET_COMMENTS } from '../../refactor_2021/dataset/comments-fragments.js'
+import { DATASET_COMMENTS } from './comments-fragments.js'
 import ErrorBoundary, {
   ErrorBoundaryAssertionFailureException,
 } from '../../errors/errorBoundary.jsx'
@@ -147,7 +147,7 @@ export const DatasetQueryHook = ({ datasetId, draft, history }) => {
             fetchMore,
             error,
           }}>
-          <DatasetPage dataset={data.dataset} />
+          <DatasetPageContainer dataset={data.dataset} />
           <FilesSubscription datasetId={datasetId} />
         </DatasetQueryContext.Provider>
       </ErrorBoundary>

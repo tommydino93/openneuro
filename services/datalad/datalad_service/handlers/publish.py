@@ -1,5 +1,5 @@
+import asyncio
 import falcon
-import gevent
 
 from datalad_service.tasks.publish import publish_dataset
 
@@ -11,9 +11,11 @@ class PublishResource(object):
     def __init__(self, store):
         self.store = store
 
-    def on_post(self, req, resp, dataset):
+    async def on_post(self, req, resp, dataset):
         dataset_path = self.store.get_dataset_path(dataset)
 
-        gevent.spawn(publish_dataset, dataset_path, cookies=req.cookies)
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, publish_dataset, dataset_path, cookies=req.cookies)
+
         resp.media = {}
         resp.status = falcon.HTTP_OK

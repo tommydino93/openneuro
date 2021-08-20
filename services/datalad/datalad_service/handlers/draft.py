@@ -11,7 +11,7 @@ class DraftResource(object):
     def __init__(self, store):
         self.store = store
 
-    def on_get(self, req, resp, dataset):
+    async def on_get(self, req, resp, dataset):
         """
         Return draft state (other than files).
         """
@@ -24,7 +24,7 @@ class DraftResource(object):
         else:
             resp.status = falcon.HTTP_NOT_FOUND
 
-    def on_post(self, req, resp, dataset):
+    async def on_post(self, req, resp, dataset):
         """
         Commit a draft change.
 
@@ -37,20 +37,16 @@ class DraftResource(object):
             if name and email:
                 media_dict['name'] = name
                 media_dict['email'] = email
-            try:
-                dataset_path = self.store.get_dataset_path(dataset)
-                repo = pygit2.Repository(dataset_path)
-                # Add all changes to the index
-                if name and email:
-                    author = pygit2.Signature(name, email)
-                    media_dict['ref'] = git_commit(repo, ['.'], author).hex
-                else:
-                    media_dict['ref'] = git_commit(repo, ['.']).hex
-                resp.media = media_dict
-                resp.status = falcon.HTTP_OK
-            except:
-                raise
-                resp.status = falcon.HTTP_INTERNAL_SERVER_ERROR
+            dataset_path = self.store.get_dataset_path(dataset)
+            repo = pygit2.Repository(dataset_path)
+            # Add all changes to the index
+            if name and email:
+                author = pygit2.Signature(name, email)
+                media_dict['ref'] = git_commit(repo, ['.'], author).hex
+            else:
+                media_dict['ref'] = git_commit(repo, ['.']).hex
+            resp.media = media_dict
+            resp.status = falcon.HTTP_OK
         else:
             resp.media = {
                 'error': 'Missing or malformed dataset parameter in request.'}

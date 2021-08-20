@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os.path
 import subprocess
@@ -5,7 +6,6 @@ import re
 
 import pygit2
 import boto3
-import gevent
 from github import Github
 
 import datalad_service.common.s3
@@ -103,7 +103,7 @@ def get_dataset_realm(siblings, realm=None):
     return realm
 
 
-def publish_dataset(dataset_path, cookies=None, realm='PUBLIC'):
+async def publish_dataset(dataset_path, cookies=None, realm='PUBLIC'):
     def get_realm():
         return get_s3_realm(realm=realm)
 
@@ -136,7 +136,7 @@ def publish_snapshot(dataset_path, cookies=None, snapshot=None, realm=None):
     export_all_tags(dataset_path, cookies, get_realm, should_export)
 
 
-def export_all_tags(dataset_path, cookies, get_realm, check_should_export, esLogger=None):
+async def export_all_tags(dataset_path, cookies, get_realm, check_should_export, esLogger=None):
     """Migrate a dataset and all snapshots to an S3 bucket"""
     dataset = os.path.basename(dataset_path)
     repo = pygit2.Repository(dataset_path)
@@ -151,13 +151,13 @@ def export_all_tags(dataset_path, cookies, get_realm, check_should_export, esLog
             error = None
             try:
                 publish_target(dataset_path, realm.s3_remote, tag)
-                gevent.sleep()
+                await asyncio.sleep(0)
                 s3_export_successful = True
                 # Public publishes to GitHub
                 if realm == DatasetRealm.PUBLIC and DATALAD_GITHUB_EXPORTS_ENABLED:
                     github_sibling(dataset_path, dataset_id, siblings)
                     publish_target(dataset_path, realm.github_remote, tag)
-                    gevent.sleep()
+                    await asyncio.sleep(0)
                     github_export_successful = True
             except Exception as err:
                 error = err

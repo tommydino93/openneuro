@@ -42,7 +42,7 @@ class GitRefsResource(object):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_get(self, req, resp, worker, dataset):
+    async def on_get(self, req, resp, worker, dataset):
         # Make sure load balancers and other proxies do not cache this
         resp.cache_control = cache_control
         resp.set_header('Expires', expires)
@@ -77,7 +77,7 @@ class GitReceiveResource(object):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_post(self, req, resp, worker, dataset):
+    async def on_post(self, req, resp, worker, dataset):
         resp.cache_control = cache_control
         resp.set_header('Expires', expires)
         resp.set_header('WWW-Authenticate', 'Basic realm="dataset git repo"')
@@ -107,7 +107,7 @@ class GitUploadResource(object):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_post(self, req, resp, worker, dataset):
+    async def on_post(self, req, resp, worker, dataset):
         resp.cache_control = cache_control
         resp.set_header('Expires', expires)
         resp.set_header('WWW-Authenticate', 'Basic realm="dataset git repo"')

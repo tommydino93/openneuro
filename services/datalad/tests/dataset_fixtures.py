@@ -5,7 +5,6 @@ import subprocess
 import random
 
 import pytest
-import fakeredis
 from falcon import testing
 import requests
 
@@ -18,6 +17,8 @@ import datalad_service.tasks.publish
 from datalad_service.common.s3 import DatasetRealm
 from datalad.api import create_sibling_github
 
+# All test coroutines will be treated as marked.
+pytestmark = pytest.mark.asyncio
 
 # Test dataset to create
 DATASET_ID = 'ds000001'
@@ -45,12 +46,6 @@ BIDS_NO_ANNEX = [
 
 def id_generator(size=8, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
-
-
-@pytest.fixture(autouse=True)
-def no_redis(monkeypatch):
-    fake = fakeredis.FakeRedis()
-    monkeypatch.setattr('datalad_service.common.redis.redisClient', fake)
 
 
 @pytest.fixture(scope='session')
@@ -119,7 +114,7 @@ def no_posts(monkeypatch):
 def no_init_remote(monkeypatch):
     def mock_remote_setup(dataset_path, realm):
         subprocess.run(['git', 'remote', 'add', realm.s3_remote,
-                       'ssh://localhost/not/a/real/repo'], check=True, cwd=dataset_path)
+                        'ssh://localhost/not/a/real/repo'], check=True, cwd=dataset_path)
     monkeypatch.setattr(datalad_service.common.s3,
                         "setup_s3_sibling", mock_remote_setup)
     monkeypatch.setattr(datalad.api,
@@ -143,7 +138,8 @@ def no_publish(monkeypatch):
                         'github_export', lambda dataset, target, treeish: True)
     monkeypatch.setattr(datalad_service.common.s3,
                         's3_export', lambda dataset, target, treeish: True)
-    monkeypatch.setattr(datalad_service.common.s3, 'validate_s3_config', lambda dataset_path, realm: DatasetRealm.PUBLIC)
+    monkeypatch.setattr(datalad_service.common.s3, 'validate_s3_config',
+                        lambda dataset_path, realm: DatasetRealm.PUBLIC)
 
 
 @pytest.fixture
@@ -152,14 +148,13 @@ def s3_creds(monkeypatch):
     monkeypatch.setenv('AWS_S3_PRIVATE_BUCKET', 'a-fake-test-private-bucket')
 
 
-
 @pytest.fixture(autouse=True)
 def mock_jwt_secret(monkeypatch):
     monkeypatch.setenv('JWT_SECRET', 'test-secret-please-ignore')
 
 
 @pytest.fixture
-def client(datalad_store, monkeypatch):
+def client(datalad_store, monkeypatch, event_loop):
     return testing.TestClient(create_app(datalad_store.annex_path))
 
 

@@ -1,9 +1,7 @@
 import logging
 
 import falcon
-import sentry_sdk
-from sentry_sdk.integrations.falcon import FalconIntegration
-from falcon_elastic_apm import ElasticApmMiddleware
+import falcon.asgi
 
 import datalad_service.config
 from datalad_service.tasks.audit import audit_datasets
@@ -39,18 +37,13 @@ def create_app(annex_path):
     gunicorn_logger = logging.getLogger('gunicorn.error')
     logging.basicConfig(handlers=gunicorn_logger.handlers,
                         level=gunicorn_logger.level)
-    if datalad_service.config.SENTRY_DSN:
-        sentry_sdk.init(
-            dsn=datalad_service.config.SENTRY_DSN,
-            integrations=[FalconIntegration()]
-        )
 
     middleware = [AuthenticateMiddleware()]
     if datalad_service.config.ELASTIC_APM_SERVER_URL:
         middleware.append(ElasticApmMiddleware(service_name='datalad-service',
                                                server_url=datalad_service.config.ELASTIC_APM_SERVER_URL))
 
-    api = falcon.API(
+    api = falcon.asgi.App(
         middleware=middleware)
     api.router_options.converters['path'] = PathConverter
 

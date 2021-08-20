@@ -1,6 +1,6 @@
+import asyncio
 import logging
 
-import gevent
 import falcon
 
 from datalad_service.tasks.snapshots import SnapshotDescriptionException, create_snapshot, get_snapshot, get_snapshots, SnapshotExistsException
@@ -17,7 +17,7 @@ class SnapshotResource(object):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_get(self, req, resp, dataset, snapshot=None):
+    async def on_get(self, req, resp, dataset, snapshot=None):
         """Get the tree of files for a snapshot."""
         if snapshot:
             files = get_files(self.store, dataset,
@@ -32,7 +32,7 @@ class SnapshotResource(object):
             resp.media = {'snapshots': tags}
             resp.status = falcon.HTTP_OK
 
-    def on_post(self, req, resp, dataset, snapshot):
+    async def on_post(self, req, resp, dataset, snapshot):
         """Commit a revision (snapshot) from the working tree."""
         media = req.media
         description_fields = {}
@@ -49,13 +49,16 @@ class SnapshotResource(object):
         try:
             created = create_snapshot(
                 self.store, dataset, snapshot, description_fields, snapshot_changes)
+
             resp.media = created
             resp.status = falcon.HTTP_OK
 
             if not skip_publishing:
+                loop = asyncio.get_running_loop()
                 # Publish after response
-                gevent.spawn(publish_snapshot, self.store,
-                             dataset, req.cookies, snapshot)
+                await loop.run_in_executor(None, publish_snapshot, self.store,
+                                           dataset, req.cookies, snapshot)
+
         except SnapshotExistsException as err:
             resp.media = {'error': repr(err)}
             resp.status = falcon.HTTP_CONFLICT
@@ -63,7 +66,7 @@ class SnapshotResource(object):
             resp.media = {'error': repr(err)}
             resp.status = falcon.HTTP_BAD_REQUEST
 
-    def on_delete(self, req, resp, dataset, snapshot):
+    async def on_delete(self, req, resp, dataset, snapshot):
         """Remove a tag on the dataset, which is equivalent to deleting a snapshot"""
         if snapshot:
             dataset_path = self.store.get_dataset_path(dataset)

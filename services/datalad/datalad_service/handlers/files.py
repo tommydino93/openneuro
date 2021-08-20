@@ -17,7 +17,7 @@ class FilesResource(object):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_get(self, req, resp, dataset, filename=None, snapshot='HEAD'):
+    async def on_get(self, req, resp, dataset, filename=None, snapshot='HEAD'):
         ds_path = self.store.get_dataset_path(dataset)
         if filename:
             try:
@@ -68,7 +68,7 @@ class FilesResource(object):
             except:
                 resp.status = falcon.HTTP_INTERNAL_SERVER_ERROR
 
-    def on_post(self, req, resp, dataset, filename):
+    async def on_post(self, req, resp, dataset, filename):
         """Post will create new files and adds them to the annex if they do not exist, else update existing files."""
         if filename:
             ds_path = self.store.get_dataset_path(dataset)
@@ -100,7 +100,7 @@ class FilesResource(object):
             resp.media = {'error': 'filename is missing'}
             resp.status = falcon.HTTP_BAD_REQUEST
 
-    def on_delete(self, req, resp, dataset):
+    async def on_delete(self, req, resp, dataset):
         """Delete an existing file from a dataset"""
         if req.media:
             ds_path = self.store.get_dataset_path(dataset)

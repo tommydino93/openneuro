@@ -4,16 +4,14 @@ import json
 from mmap import mmap
 import subprocess
 
-from sentry_sdk import capture_exception
-
-
 SERVICE_EMAIL = 'git@openneuro.org'
 SERVICE_USER = 'Git Worker'
 
 
 def init_annex(dataset_path):
     """Setup git-annex within an existing git repo"""
-    subprocess.run(['git-annex', 'init', 'OpenNeuro'], check=True, cwd=dataset_path)
+    subprocess.run(['git-annex', 'init', 'OpenNeuro'],
+                   check=True, cwd=dataset_path)
 
 
 def compute_git_hash(path, size):
@@ -94,7 +92,6 @@ def parse_rmet_line(remote, rmetLine):
         s3version, path = remoteData.split('#')
         return '{}{}{}?versionId={}'.format(remote['url'], slash, path, s3version)
     except:
-        capture_exception()
         return None
 
 

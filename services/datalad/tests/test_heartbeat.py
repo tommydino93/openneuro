@@ -7,7 +7,7 @@ from datalad_service.app import create_app
 
 
 @pytest.fixture
-def client():
+def client(event_loop):
     return testing.TestClient(create_app(''))
 
 

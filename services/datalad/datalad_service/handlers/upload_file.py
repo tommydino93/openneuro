@@ -5,7 +5,6 @@ import re
 import falcon
 
 from datalad_service.common.stream import update_file
-from datalad_service.common.user import get_user_info
 from datalad_service.handlers.upload import UploadResource
 
 
@@ -43,7 +42,7 @@ class UploadFileResource(UploadResource):
                 'error': 'You do not have permission to access this dataset'}
             resp.status = falcon.HTTP_FORBIDDEN
 
-    def on_post(self, req, resp, worker, dataset, upload, filename):
+    async def on_post(self, req, resp, worker, dataset, upload, filename):
         # Check that this request includes the correct token
         if self._check_access(req, dataset, upload):
             if skip_invalid_files(filename):
@@ -62,7 +61,7 @@ class UploadFileResource(UploadResource):
         else:
             self._handle_failed_access(req, resp)
 
-    def on_get(self, req, resp, worker, dataset, upload):
+    async def on_get(self, req, resp, worker, dataset, upload):
         """Return the current upload state, files and sizes."""
         if self._check_access(req, dataset, upload):
             upload_path = self.store.get_upload_path(dataset, upload)

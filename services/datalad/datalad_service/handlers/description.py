@@ -8,7 +8,7 @@ class DescriptionResource(object):
     def __init__(self, store):
         self.store = store
 
-    def on_post(self, req, resp, dataset):
+    async def on_post(self, req, resp, dataset):
         """
         Commit a description change.
         Returns update dataset_description

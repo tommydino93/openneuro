@@ -1,9 +1,7 @@
 import hashlib
 import logging
 import os
-import shutil
 import struct
-import tempfile
 
 import falcon
 
@@ -26,7 +24,7 @@ def key_to_path(key):
     return os.path.join('.git', 'annex', 'objects', *hashdirmixed(key), key, key)
 
 
-class GitAnnexResource(object):
+class GitAnnexResource:
     """{worker}/{dataset}/annex/{key} serves git-annex object requests
 
     This allows OpenNeuro to act as a special remote, adding or removing objects from .git/annex/objects/
@@ -36,7 +34,7 @@ class GitAnnexResource(object):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_head(self, req, resp, worker, dataset, key):
+    async def on_head(self, req, resp, worker, dataset, key):
         """HEAD requests check if objects exist already"""
         resp.set_header('WWW-Authenticate', 'Basic realm="dataset git repo"')
         if not _check_git_access(req, dataset):
@@ -48,7 +46,7 @@ class GitAnnexResource(object):
         else:
             resp.status = falcon.HTTP_NOT_FOUND
 
-    def on_get(self, req, resp, worker, dataset, key):
+    async def on_get(self, req, resp, worker, dataset, key):
         resp.set_header('WWW-Authenticate', 'Basic realm="dataset git repo"')
         if not _check_git_access(req, dataset):
             return _handle_failed_access(req, resp)
@@ -62,7 +60,7 @@ class GitAnnexResource(object):
         else:
             resp.status = falcon.HTTP_NOT_FOUND
 
-    def on_post(self, req, resp, worker, dataset, key):
+    async def on_post(self, req, resp, worker, dataset, key):
         resp.set_header('WWW-Authenticate', 'Basic realm="dataset git repo"')
         if not _check_git_access(req, dataset):
             return _handle_failed_access(req, resp)
@@ -78,7 +76,7 @@ class GitAnnexResource(object):
             update_file(annex_object_path, req.stream)
             resp.status = falcon.HTTP_OK
 
-    def on_delete(self, req, resp, worker, dataset, key):
+    async def on_delete(self, req, resp, worker, dataset, key):
         resp.set_header('WWW-Authenticate', 'Basic realm="dataset git repo"')
         if not _check_git_access(req, dataset):
             return _handle_failed_access(req, resp)

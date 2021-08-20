@@ -29,6 +29,7 @@ def test_key_add_remove(client):
     assert response.status == falcon.HTTP_OK
     assert response.content == random_value
 
+
 def test_key_get_head(client):
     ds_id = 'ds000001'
     key = "MD5E-s24--00e7097e83570b24b69cc509fc8f3cbf.nii"

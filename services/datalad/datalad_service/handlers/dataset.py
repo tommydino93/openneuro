@@ -1,13 +1,19 @@
+import asyncio
 import os
 
 import falcon
-import gevent
 import pygit2
 
 from datalad_service.common.user import get_user_info
 from datalad_service.tasks.dataset import create_dataset
 from datalad_service.tasks.dataset import delete_dataset
 from datalad_service.tasks.publish import delete_siblings
+
+
+async def run_delete_tasks(store, dataset):
+    delete_siblings(store, dataset)
+    await asyncio.sleep(0)
+    delete_dataset(store, dataset)
 
 
 class DatasetResource(object):
@@ -17,7 +23,7 @@ class DatasetResource(object):
     def __init__(self, store):
         self.store = store
 
-    def on_get(self, req, resp, dataset):
+    async def on_get(self, req, resp, dataset):
         ds_path = self.store.get_dataset_path(dataset)
         if (os.path.isdir(ds_path)):
             dataset_description = {
@@ -30,7 +36,7 @@ class DatasetResource(object):
             resp.media = {'error': 'dataset not found'}
             resp.status = falcon.HTTP_NOT_FOUND
 
-    def on_post(self, req, resp, dataset):
+    async def on_post(self, req, resp, dataset):
         ds_path = self.store.get_dataset_path(dataset)
         if (os.path.isdir(ds_path)):
             resp.media = {'error': 'dataset already exists'}
@@ -46,14 +52,11 @@ class DatasetResource(object):
             resp.media = {'hexsha': hexsha}
             resp.status = falcon.HTTP_OK
 
-    def on_delete(self, req, resp, dataset):
-        def run_delete_tasks(store, dataset):
-            delete_siblings(store, dataset)
-            gevent.sleep()
-            delete_dataset(store, dataset)
-
+    async def on_delete(self, req, resp, dataset):
         try:
-            gevent.spawn(run_delete_tasks, self.store, dataset)
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, run_delete_tasks, self.store, dataset)
+
             resp.media = {}
             resp.status = falcon.HTTP_OK
         except:

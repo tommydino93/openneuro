@@ -1,22 +1,19 @@
+import asyncio
 import json
 import os
 import requests
-
-import gevent
-from gevent import subprocess
-import sentry_sdk
 
 from datalad_service.config import GRAPHQL_ENDPOINT
 from datalad_service.common.elasticsearch import ValidationLogger
 
 
-def setup_validator():
+async def setup_validator():
     """Install nodejs deps if they do not exist."""
     if not os.path.exists('./node_modules/.bin/bids-validator'):
-        subprocess.run(['yarn'])
+        await asyncio.create_subprocess_exec('yarn')
 
 
-def validate_dataset_sync(dataset_path, ref, esLogger):
+async def validate_dataset_sync(dataset_path, ref, esLogger):
     """
     Synchronous dataset validation.
 
@@ -24,15 +21,10 @@ def validate_dataset_sync(dataset_path, ref, esLogger):
     """
     setup_validator()
     try:
-        process = gevent.subprocess.run(
-            ['./node_modules/.bin/bids-validator', '--json', '--ignoreSubjectConsistency', dataset_path], stdout=subprocess.PIPE, timeout=300)
+        process = await asyncio.create_subprocess_exec('./node_modules/.bin/bids-validator', ['--json', '--ignoreSubjectConsistency', dataset_path], stdout=asyncio.subprocess.PIPE)
         return json.loads(process.stdout)
-    except subprocess.TimeoutExpired as err:
-        esLogger.log(process.stdout, process.stderr, err)
-        sentry_sdk.capture_exception()
     except json.decoder.JSONDecodeError as err:
         esLogger.log(process.stdout, process.stderr, err)
-        sentry_sdk.capture_exception()
 
 
 def summary_mutation(dataset_id, ref, validator_output):
@@ -79,7 +71,7 @@ def issues_mutation(dataset_id, ref, validator_output):
     }
 
 
-def _validate_dataset_eventlet(dataset_id, dataset_path, ref, cookies=None, user=''):
+async def _validate_dataset_eventlet(dataset_id, dataset_path, ref, cookies=None, user=''):
     esLogger = ValidationLogger(dataset_id, user)
     validator_output = validate_dataset_sync(dataset_path, ref, esLogger)
     if validator_output:
@@ -98,5 +90,5 @@ def _validate_dataset_eventlet(dataset_id, dataset_path, ref, cookies=None, user
 
 
 def validate_dataset(dataset_id, dataset_path, ref, cookies=None, user=''):
-    return gevent.spawn(_validate_dataset_eventlet,
-                        dataset_id, dataset_path, ref, cookies, user)
+    return asyncio.create_task(_validate_dataset_eventlet,
+                               dataset_id, dataset_path, ref, cookies, user)

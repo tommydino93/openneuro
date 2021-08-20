@@ -1,5 +1,5 @@
+import asyncio
 import logging
-import gevent
 
 import falcon
 
@@ -8,13 +8,12 @@ from datalad_service.tasks.publish import remove_file_remotes
 from datalad_service.tasks.files import remove_annex_object
 
 
-class AnnexObjectsResource(object):
-
+class AnnexObjectsResource:
     def __init__(self, store):
         self.store = store
         self.logger = logging.getLogger('datalad_service.' + __name__)
 
-    def on_delete(self, req, resp, dataset, snapshot, annex_key):
+    async def on_delete(self, req, resp, dataset, snapshot, annex_key):
         """Delete an existing annex_object on a dataset"""
         if annex_key:
             dataset_path = self.store.get_dataset_path(dataset)
@@ -25,9 +24,9 @@ class AnnexObjectsResource(object):
                 resp.media = {'error': 'file does not exist'}
                 resp.status = falcon.HTTP_BAD_REQUEST
             urls = file.get('urls')
-
-            gevent.spawn(remove_file_remotes, self.store, urls)
-            gevent.spawn(remove_annex_object, self.store, ds, annex_key)
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, remove_file_remotes, self.store, urls)
+            await loop.run_in_executor(None, remove_annex_object, self.store, ds, annex_key)
         else:
             resp.media = {'error': 'annex-key is missing'}
             resp.status = falcon.HTTP_NOT_FOUND

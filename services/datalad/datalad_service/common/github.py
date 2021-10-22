@@ -21,4 +21,4 @@ def create_sibling_github(dataset_path, dataset_id):
     )
     repo = Repository(dataset_path)
     repo.remotes.create(
-        'github', f'ssh://git@github.com:OpenNeuroDatasets/{dataset_id}.git')
+        'github', f'ssh://git@github.com/OpenNeuroDatasets/{dataset_id}.git')
